@@ -113,3 +113,50 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get(self):
+        """Test the get method of FileStorage"""
+        # Create and save a new State instance
+        new_state = State(name="California")
+        new_state.save()
+        state_id = new_state.id
+        
+        # Test getting the state by its ID
+        retrieved_state = self.storage.get(State, state_id)
+        self.assertEqual(retrieved_state, new_state)
+        
+        # Test getting a non-existent state
+        self.assertIsNone(self.storage.get(State, "non_existing_id"))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count(self):
+        """Test the count method of FileStorage"""
+        # Create and save a new State instance
+        new_state = State(name="California")
+        new_state.save()
+        
+        # Test counting all objects
+        all_count = self.storage.count()
+        self.assertEqual(all_count, 1)
+        
+        # Test counting objects of a specific class
+        state_count = self.storage.count(State)
+        self.assertEqual(state_count, 1)
+        
+        # Clean up
+        self.storage.delete(new_state)
+        self.storage.save()
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get_empty_id(self):
+        """Test the get method with empty ID"""
+        self.assertIsNone(self.storage.get(State, ""))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count_empty_class(self):
+        """Test the count method with empty class"""
+        self.assertEqual(self.storage.count(None), 0)
+
+if __name__ == '__main__':
+    unittest.main()
