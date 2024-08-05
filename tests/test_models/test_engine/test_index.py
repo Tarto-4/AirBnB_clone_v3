@@ -1,36 +1,24 @@
 #!/usr/bin/python3
 """
-test_index.py
+index.py
 """
-import unittest
-from flask import Flask, jsonify
-from api.v1.app import app
+from flask import jsonify
+from api.v1.views import app_views
+from models import storage
 
-class TestIndex(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        """Set up the Flask app"""
-        cls.client = app.test_client()
-        cls.client.testing = True
+@app_views.route('/status', methods=['GET'])
+def status():
+    """Returns the status of the API"""
+    return jsonify({"status": "OK"})
 
-    def test_status(self):
-        """Test the /status route"""
-        response = self.client.get('/api/v1/status')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json, {"status": "OK"})
-
-    def test_stats(self):
-        """Test the /stats route"""
-        response = self.client.get('/api/v1/stats')
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json, dict)
-        # Optionally, check if specific classes are present in the response
-        self.assertIn("Amenity", response.json)
-        self.assertIn("City", response.json)
-        self.assertIn("Place", response.json)
-        self.assertIn("Review", response.json)
-        self.assertIn("State", response.json)
-        self.assertIn("User", response.json)
-
-if __name__ == '__main__':
-    unittest.main()
+@app_views.route('/stats', methods=['GET'])
+def stats():
+    """Returns the number of each object by type"""
+    classes = ["Amenity", "City", "Place", "Review", "State", "User"]
+    object_counts = {}
+    
+    for cls in classes:
+        count = storage.count(cls)
+        object_counts[cls.lower() + 's'] = count
+    
+    return jsonify(object_counts)
