@@ -14,6 +14,10 @@ from os import getenv
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from models.engine.file_storage import FileStorage
+from models.engine.db_storage import DBStorage
+
+storage_t = getenv('HBNB_TYPE_STORAGE')
 
 classes = {"Amenity": Amenity, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -90,3 +94,12 @@ class DBStorage:
         if isinstance(cls, str):
             cls = classes.get(cls)
         return self.__session.query(cls).count()
+
+storage_t = getenv('HBNB_TYPE_STORAGE')
+
+if storage_t == 'db':
+    storage = DBStorage()
+else:
+    storage = FileStorage()
+
+storage.reload()
