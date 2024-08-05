@@ -154,7 +154,7 @@ EOF  all  create  destroy  help  quit  show  update
 No known bugs at this time. 
 
 ## Authors
-Alexa Orrico - [Github](https://github.com/tarto-4) / [Twitter](https://twitter.com/alexa_orrico)  
+Thato Mongwe - [Github](https://github.com/tarto-4) / [Twitter](https://twitter.com/Thato_Mongwe)  
 
 Second part of Airbnb: Thato Mongwe
 ## License
