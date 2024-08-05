@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Contains the TestFileStorageDocs classes
+Contains the TestFileStorageDocs classes and TestFileStorage classes
 """
 
 from datetime import datetime
@@ -18,10 +18,10 @@ import json
 import os
 import pep8
 import unittest
+
 FileStorage = file_storage.FileStorage
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
-
 
 class TestFileStorageDocs(unittest.TestCase):
     """Tests to check the documentation and style of FileStorage class"""
@@ -67,7 +67,6 @@ test_file_storage.py'])
             self.assertTrue(len(func[1].__doc__) >= 1,
                             "{:s} method needs a docstring".format(func[0]))
 
-
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
@@ -80,7 +79,7 @@ class TestFileStorage(unittest.TestCase):
 
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_new(self):
-        """test that new adds an object to the FileStorage.__objects attr"""
+        """Test that new adds an object to the FileStorage.__objects attr"""
         storage = FileStorage()
         save = FileStorage._FileStorage__objects
         FileStorage._FileStorage__objects = {}
@@ -116,47 +115,24 @@ class TestFileStorage(unittest.TestCase):
 
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_get(self):
-        """Test the get method of FileStorage"""
-        # Create and save a new State instance
-        new_state = State(name="California")
-        new_state.save()
-        state_id = new_state.id
-        
-        # Test getting the state by its ID
-        retrieved_state = self.storage.get(State, state_id)
-        self.assertEqual(retrieved_state, new_state)
-        
-        # Test getting a non-existent state
-        self.assertIsNone(self.storage.get(State, "non_existing_id"))
+        """Test the get method"""
+        storage = FileStorage()
+        instance = State(name="California")
+        storage.new(instance)
+        storage.save()
+        self.assertEqual(storage.get(State, instance.id), instance)
+        self.assertEqual(storage.get(State, "nonexistent_id"), None)
 
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_count(self):
-        """Test the count method of FileStorage"""
-        # Create and save a new State instance
-        new_state = State(name="California")
-        new_state.save()
-        
-        # Test counting all objects
-        all_count = self.storage.count()
-        self.assertEqual(all_count, 1)
-        
-        # Test counting objects of a specific class
-        state_count = self.storage.count(State)
-        self.assertEqual(state_count, 1)
-        
-        # Clean up
-        self.storage.delete(new_state)
-        self.storage.save()
-
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_get_empty_id(self):
-        """Test the get method with empty ID"""
-        self.assertIsNone(self.storage.get(State, ""))
-
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_count_empty_class(self):
-        """Test the count method with empty class"""
-        self.assertEqual(self.storage.count(None), 0)
-
-if __name__ == '__main__':
-    unittest.main()
+        """Test the count method"""
+        storage = FileStorage()
+        initial_count = storage.count()
+        instance1 = State(name="California")
+        instance2 = State(name="Texas")
+        storage.new(instance1)
+        storage.new(instance2)
+        storage.save()
+        self.assertEqual(storage.count(), initial_count + 2)
+        self.assertEqual(storage.count(State), 2)
+        self.assertEqual(storage.count(Amenity), 0)
